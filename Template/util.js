@@ -39,7 +39,7 @@ export function setColour(h, s = 100, l = 50, a = 1, element = thing) {
   state.lightness = l;
   state.opacity = a;
   if (element != null) {
-    element.style.backgroundColor = `hsl(${ h }, ${ s }%, ${ l }%, ${ a })`;
+    element.style.backgroundColor = `hsla(${ h }, ${ s }%, ${ l }%, ${ a })`;
   }
 }
 
