@@ -7,21 +7,26 @@ import * as Util from "./util.js";
 import { Vector } from "./vector.js";
 import { Enemy } from "./enemies.js";
 import { Player } from "./player.js";
+import { Goal } from "./goal.js"; 
+
+
 
 let lastTime = 0;
 let deltaTime = 0;
-
+let goal; 
 
 let enemies = [];
-const enemyPositions = [
-  new Vector(0.3, 0.9),
-  new Vector(0.5, 0.6),
-  new Vector(0.7, 0.3)
+const enemyData = [
+  {pos: new Vector(0.3, 0.9), type: "horizontal", speed:0.5},
+  {pos: new Vector(0.5, 0.6), type: "vertical", speed:0.7},
+  {pos:new Vector(0.7, 0.3), type: "horizontal", speed:0.5}
 ];
+
 let player; 
 
-function createEnemyAtPos(v) {
-  enemies.push(new Enemy(new Vector(v.x, v.y)));
+
+function createEnemyAtPos(data) {
+  enemies.push(new Enemy(data.pos, data.type, data.speed));
 }
 
 /**
@@ -54,6 +59,26 @@ function onKeyUp(event){
   };
 }
 
+function checkGoalCollision(goal){
+  let goalPixPos = goal.convertPosToPixel();
+
+  let AXmin = goalPixPos.x - goal.SIZE * 0.5;
+  let AXmax = goalPixPos.x + goal.SIZE * 0.5;
+  let AYmin = goalPixPos.y - goal.SIZE * 0.5;
+  let AYmax = goalPixPos.y + goal.SIZE * 0.5;
+
+  let playerPixPos = player.convertPosToPixel(); 
+  let BXmin = playerPixPos.x - player.SIZE * 0.5;
+  let BXmax = playerPixPos.x + player.SIZE * 0.5;
+  let BYmin = playerPixPos.y - player.SIZE * 0.5;
+  let BYmax = playerPixPos.y + player.SIZE * 0.5;
+
+  if(AXmin <= BXmax && AXmax >= BXmin && AYmin <= BYmax && AYmax >= BYmin){
+    return true;
+  } else {
+    return false;
+  }
+}
 /**
  * Checking whether an enemy collides with a player using 
  * AABB intersection math https://dev.to/pratyush_mohanty_6b8f2749/the-math-behind-bounding-box-collision-detection-aabb-vs-obbseparate-axis-theorem-1gdn
@@ -63,6 +88,9 @@ function onKeyUp(event){
 function checkEnemyCollision(enemy){
   // enemy positions
   let enemyPixPos = enemy.convertPosToPixel(); // convert position to pixels because SIZE is in pixels
+  // This creates a box around the enemy for collision detection
+  // Example: If enemy is at (100,100) with SIZE=100:
+  // Left=50, Right=150, Top=50, Bottom=150
   let AXmin = enemyPixPos.x - enemy.SIZE * 0.5;
   let AXmax = enemyPixPos.x + enemy.SIZE * 0.5;
   let AYmin = enemyPixPos.y - enemy.SIZE * 0.5;
@@ -90,15 +118,22 @@ function loop() {
   enemies.forEach(enemy => {
     enemy.update(deltaTime);
   });
+  
   player.update(deltaTime); 
 
   // check if enemy collides with player
   enemies.forEach(enemy => {
     if(checkEnemyCollision(enemy)){
       // we have a collision here !
-      console.log("We have a collision");
+      console.log("We have a collision! Resetting player position");
+      player.resetPosition();
     }
   })
+
+  if(checkGoalCollision(goal)){
+    console.log("nice congrats!");
+  }
+  
 
   window.requestAnimationFrame(loop);
 }
@@ -118,11 +153,11 @@ function calculateDeltaTime() {
 
 function setup() {
 
-  enemyPositions.forEach(pos => {
-    createEnemyAtPos(pos);
+  enemyData.forEach(data => {
+    createEnemyAtPos(data);
   });
   player = new Player(new Vector(0.7, 0.9));
-
+  goal = new Goal(new Vector(0.3, 0.15));
   addEventListener("keydown", onKeyDown);
   addEventListener("keyup",onKeyUp); 
 

@@ -1,7 +1,8 @@
 import * as Util from "./util.js";
 import {Vector} from "./vector.js"; 
+import { setBoundaries } from "./boundaries.js";
 
-const SPEED = 100;
+const SPEED = 200;
 
 export class Player{
   SIZE = 100;
@@ -9,7 +10,8 @@ export class Player{
 
   constructor(pos){
     // 'this' referes to THIS current object
-    this.pos = pos;
+    this.spawnPos = new Vector(pos.x, pos.y);
+    this.pos = new Vector(pos.x, pos.y);
     this.thing = Util.createThing("player");
     this.init(); 
     this.vel = new Vector(0,0);
@@ -27,9 +29,14 @@ export class Player{
     Util.setRoundedness(0, this.thing);
   }
   
+  resetPosition(){
+    this.pos.x = this.spawnPos.x;
+    this.pos.y = this.spawnPos.y;
+  }
   setVel(){
     //resets the velocity to zero so we can calculate it 
     //from scratch (doesn't infinetly add to itself)
+    //scales the movement to be time-based instead of frame-based
     this.vel = new Vector(0,0);
 
     if(this.isKeyMDown){
@@ -56,8 +63,8 @@ export class Player{
     this.vel.mult(deltaTime); //scale velocity by deltatime 
     let normalVel = this.convertPixelToNormal(this.vel); //converts this.vel to normalised
     this.pos.add(normalVel); //move position by velocity (smooth)
-
     const pixPos = this.convertPosToPixel();
+    setBoundaries(this);
     // Vector.mult doesnt modify 'this.vel', it only returns
     // a new vector that is multiplied by deltaTime
     Util.setRotation(0, this.thing);

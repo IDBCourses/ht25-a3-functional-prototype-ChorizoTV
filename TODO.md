@@ -1,13 +1,7 @@
 # TODO list for roza
 
-## Smooth player movement
- - [ ] finished
-
-Instead of the current implementation, where you do this currently:
- - INPUT read a keycode
- - DETERMINE if it is 'keyM', 'keyK' or 'keyL',
- - MOVE the player instantly in that direction
-
-You should do this:
- - READ INPUT so that you know which keys are down and which have gone up again. There are two events, 'keydown' and 'keyup'. 
-   - Basically, you have a state where 3 keys can be down or up in any moment, and THAT determines the direction. So in your player you need to track what keys are currently pressed.
+- [uwu] make the finish line. let the player be able to collide with it. your program should be able to detect when the player has reached the goal (think about what we did with the enemies)
+- [uwu] work on enemy movement
+- [uwu] do some research on how you can control the size of the frame
+- [uwu] how do you restart the game? it should be automatic. How do you reset the game? do research, ask ai, ask your teacher assistant
+- 
