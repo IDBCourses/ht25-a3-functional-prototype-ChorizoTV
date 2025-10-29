@@ -20,7 +20,7 @@ export class Enemy {
 
   init() {
     const pixPos = this.convertPosToPixel();
-    Util.setColour(0, 100, 60, 1, this.thing);
+    Util.setColour(330, 100, 50, 1, this.thing);
     Util.setPositionPixels(pixPos.x, pixPos.y , this.thing);
     Util.setSize(this.SIZE, this.SIZE, this.thing);
     Util.setRoundedness(0, this.thing);

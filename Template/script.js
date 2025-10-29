@@ -8,17 +8,29 @@ import { Vector } from "./vector.js";
 import { Enemy } from "./enemies.js";
 import { Player } from "./player.js";
 import { Goal } from "./goal.js"; 
-
+import { ColorPlate, PLATE_COLORS } from "./colorplates.js";
 
 
 let lastTime = 0;
 let deltaTime = 0;
 let goal; 
+let colorPlates = [];
 
+let colorPlateData = [
+  {pos: new Vector(0.3, 0.9), color: PLATE_COLORS.RED},
+  {pos: new Vector(0.7, 0.45), color: PLATE_COLORS.BLUE},
+  {pos: new Vector(0.6, 0.15), color: PLATE_COLORS.YELLOW}
+];
+
+function createColorPlates(){
+  colorPlateData.forEach((plateData) => {
+    colorPlates.push(new ColorPlate(plateData.pos, plateData.color));
+  });
+}
 let enemies = [];
 const enemyData = [
-  {pos: new Vector(0.3, 0.6), type: "horizontal", speed:0.5},
-  {pos: new Vector(0.5, 0.6), type: "vertical", speed:0.6},
+  {pos: new Vector(0.3, 0.6), type: "horizontal", speed:0.4},
+  {pos: new Vector(0.5, 0.6), type: "vertical", speed:0.4},
   {pos:new Vector(0.7, 0.3), type: "horizontal", speed:0.4}
 ];
 
@@ -144,6 +156,7 @@ function calculateDeltaTime() {
 
 function setup() {
 
+    createColorPlates();
   enemyData.forEach(data => {
     createEnemyAtPos(data);
   });
