@@ -17,9 +17,9 @@ let goal;
 
 let enemies = [];
 const enemyData = [
-  {pos: new Vector(0.3, 0.9), type: "horizontal", speed:0.5},
-  {pos: new Vector(0.5, 0.6), type: "vertical", speed:0.7},
-  {pos:new Vector(0.7, 0.3), type: "horizontal", speed:0.5}
+  {pos: new Vector(0.3, 0.6), type: "horizontal", speed:0.5},
+  {pos: new Vector(0.5, 0.6), type: "vertical", speed:0.6},
+  {pos:new Vector(0.7, 0.3), type: "horizontal", speed:0.4}
 ];
 
 let player; 
@@ -34,29 +34,18 @@ function createEnemyAtPos(data) {
  * @param {KeyboardEvent} event 
  */
 function onKeyDown(event){
-  //console.log(`Keycode pressed: ${event.code}`);
-  if( event.code === "KeyM") {
-    player.isKeyMDown = true;
-  };
-  if( event.code === "KeyK"){
-    player.isKeyKDown = true;
-  };
-  if( event.code === "KeyL"){
-    player.isKeyLDown = true;
-  };
+if (event.code === "KeyK") {
+  player.isStopped = true;
+}
+if (event.code === "KeyM") {
+  player.cycleDirection();
+}
 }
 
 function onKeyUp(event){
-  //console.log(`Keycode pressed: ${event.code}`);
-  if( event.code === "KeyM") {
-    player.isKeyMDown = false;
-  };
-  if( event.code === "KeyK"){
-    player.isKeyKDown = false;
-  };
-  if( event.code === "KeyL"){
-    player.isKeyLDown = false;
-  };
+if( event.code === "KeyK") {
+  player.isStopped = false;
+}
 }
 
 function checkGoalCollision(goal){
@@ -127,6 +116,8 @@ function loop() {
       // we have a collision here !
       console.log("We have a collision! Resetting player position");
       player.resetPosition();
+      let playerState = player.getRandomState();
+      player.setState(playerState);
     }
   })
 
