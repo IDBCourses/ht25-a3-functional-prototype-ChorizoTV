@@ -3,32 +3,64 @@ import {Vector} from "./vector.js";
 import { setBoundaries } from "./boundaries.js";
 
 const SPEED = 200;
+export const PLAYER_STATE = {
+  PURPLE: "purple",
+  GREEN: "green",
+  ORANGE: "orange"
+};
 
+export const PLAYER_COLORS = {
+  [PLAYER_STATE.PURPLE]: {h:266, s: 100, l: 50, a: 1 },
+  [PLAYER_STATE.GREEN] : {h:135, s: 76, l: 60, a: 1 },
+  [PLAYER_STATE.ORANGE]: {h:24, s: 90, l: 60, a: 1 }
+}
 export class Player{
   SIZE = 100;
   halfSize = this.SIZE * 0.5;
 
   constructor(pos){
     // 'this' referes to THIS current object
-    this.spawnPos = new Vector(pos.x, pos.y);
-    this.pos = new Vector(pos.x, pos.y);
-    this.thing = Util.createThing("player");
+    this.spawnPos = new Vector(pos.x, pos.y); //remember where the player starts
+    this.pos = new Vector(pos.x, pos.y); // curr pos changes when player moves
+    this.thing = Util.createThing("player"); 
+    this.currentState = this.getRandomState();//pick a random color state when player starts
     this.init(); 
-    this.vel = new Vector(0,0);
-
+    this.vel = new Vector(0,0); //how fast and in what direction player is moving
+    //track which keys are being pressed for movement 
     this.isKeyMDown = false;
     this.isKeyKDown = false;
     this.isKeyLDown = false;
   }
 
+  //get random state from the three states
+  getRandomState(){
+    //put all possible states in a list
+    const states = [PLAYER_STATE.PURPLE, PLAYER_STATE.GREEN, PLAYER_STATE.ORANGE];
+    //pick random number: 0, 1, 2
+    const randomIndex = Math.floor(Math.random() * states.length);
+    //returns the chosen state
+    return states[randomIndex];
+  }
+
+  
+  getCurrentColor(){
+    return PLAYER_COLORS[this.currentState];
+  }
+
   init(){
     const pixPos = this.convertPosToPixel();
-    Util.setColour(200, 100, 60, 1, this.thing);
+    const color = this.getCurrentColor();
+    Util.setColour(color.h, color.s, color.l, color.a, this.thing);
+
     Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);
     Util.setSize(this.SIZE, this.SIZE, this.thing);
     Util.setRoundedness(0, this.thing);
   }
-  
+  setState(newState){
+    const color = this.getCurrentColor();
+    Util.setColour(color.h, color.s, color.l, color.a, this.thing);
+
+  }
   resetPosition(){
     this.pos.x = this.spawnPos.x;
     this.pos.y = this.spawnPos.y;
