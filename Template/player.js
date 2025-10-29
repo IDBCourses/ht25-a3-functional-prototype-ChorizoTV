@@ -1,7 +1,7 @@
 import * as Util from "./util.js";
 import {Vector} from "./vector.js"; 
 
-const SPEED = 1;
+const SPEED = 100;
 
 export class Player{
   SIZE = 100;
@@ -12,6 +12,11 @@ export class Player{
     this.pos = pos;
     this.thing = Util.createThing("player");
     this.init(); 
+    this.vel = new Vector(0,0);
+
+    this.isKeyMDown = false;
+    this.isKeyKDown = false;
+    this.isKeyLDown = false;
   }
 
   init(){
@@ -21,31 +26,57 @@ export class Player{
     Util.setSize(this.SIZE, this.SIZE, this.thing);
     Util.setRoundedness(0, this.thing);
   }
+  
+  setVel(){
+    //resets the velocity to zero so we can calculate it 
+    //from scratch (doesn't infinetly add to itself)
+    this.vel = new Vector(0,0);
 
-  moveLeft(){
-    //0.016 is the time of one frame (assuming 1 second is 60 frames)
-    this.pos.x -= SPEED * 0.01;
+    if(this.isKeyMDown){
+      let leftVel = new Vector (-1, 0);
+      leftVel.mult(SPEED);
+      this.vel.add(leftVel);
+    }
+     if(this.isKeyKDown){
+      const upVel = new Vector (0, -1);
+      upVel.mult(SPEED);
+      this.vel.add(upVel)
+    } 
+    if(this.isKeyLDown){
+      const rightVel = new Vector (1, 0);
+      rightVel.mult(SPEED);
+      this.vel.add(rightVel);
+    }
   }
 
-  moveRight(){
-    this.pos.x += SPEED * 0.01;
-  }
 
-  moveUp(){
-    this.pos.y -= SPEED * 0.01;
-  }
+  update(deltaTime){
 
-  updateTransform(){
+    this.setVel();
+    this.vel.mult(deltaTime); //scale velocity by deltatime 
+    let normalVel = this.convertPixelToNormal(this.vel); //converts this.vel to normalised
+    this.pos.add(normalVel); //move position by velocity (smooth)
+
     const pixPos = this.convertPosToPixel();
+    // Vector.mult doesnt modify 'this.vel', it only returns
+    // a new vector that is multiplied by deltaTime
     Util.setRotation(0, this.thing);
     Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);
 
   }
 
+  // converts 'this.pos' to pixel coordinates and returns them
   convertPosToPixel() {
     let px = this.pos.x * window.innerWidth - this.halfSize;
     let py = this.pos.y * window.innerHeight - this.halfSize;
     return new Vector(px, py);
+  }
+  // converts pixel coordinates to normal coordinates, which
+  // range between 0-1 and returns them.
+  convertPixelToNormal(vec){
+    let nx = vec.x / window.innerWidth;
+    let ny = vec.y / window.innerHeight;
+    return new Vector(nx, ny);
   }
 }
 

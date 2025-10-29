@@ -29,15 +29,28 @@ function createEnemyAtPos(v) {
  * @param {KeyboardEvent} event 
  */
 function onKeyDown(event){
-  console.log(`Keycode pressed: ${event.code}`);
+  //console.log(`Keycode pressed: ${event.code}`);
   if( event.code === "KeyM") {
-    player.moveLeft();
+    player.isKeyMDown = true;
   };
   if( event.code === "KeyK"){
-    player.moveUp();
+    player.isKeyKDown = true;
   };
   if( event.code === "KeyL"){
-    player.moveRight();
+    player.isKeyLDown = true;
+  };
+}
+
+function onKeyUp(event){
+  //console.log(`Keycode pressed: ${event.code}`);
+  if( event.code === "KeyM") {
+    player.isKeyMDown = false;
+  };
+  if( event.code === "KeyK"){
+    player.isKeyKDown = false;
+  };
+  if( event.code === "KeyL"){
+    player.isKeyLDown = false;
   };
 }
 
@@ -75,9 +88,9 @@ function loop() {
   calculateDeltaTime(); 
 
   enemies.forEach(enemy => {
-    enemy.update();
+    enemy.update(deltaTime);
   });
-  player.updateTransform(); 
+  player.update(deltaTime); 
 
   // check if enemy collides with player
   enemies.forEach(enemy => {
@@ -111,6 +124,7 @@ function setup() {
   player = new Player(new Vector(0.7, 0.9));
 
   addEventListener("keydown", onKeyDown);
+  addEventListener("keyup",onKeyUp); 
 
   lastTime = Date.now();
   window.requestAnimationFrame(loop);

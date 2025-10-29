@@ -4,14 +4,23 @@
 
 
 export class Vector {
+
   constructor(x=0.0, y=0.0){
     this.x = x;
     this.y = y;
   }
-
+  // add x, y components of a vector
   add(x = 0.0, y = 0.0){
     this.x += x;
     this.y += y;
+  }
+  /**
+   * add a vector to this vector
+   * @param {Vector} vec 
+   */
+  add(vec){
+    this.x += vec.x;
+    this.y += vec.y;
   }
   /**
    * add two vectors together without modifying them 
@@ -28,6 +37,14 @@ export class Vector {
   sub(x = 0.0, y = 0.0){
     this.x -= x;
     this.y -= y;
+  }
+  /**
+   * 
+   * @param {Vector} vec 
+   */
+  sub(vec){
+    this.x -= vec.x;
+    this.y -= vec.y;
   }
   /**
    * substracts two vectors together without modifying them 
