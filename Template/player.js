@@ -20,12 +20,13 @@ export class Player {
   SIZE = 100;
   halfSize = this.SIZE * 0.5;
 
-  constructor(pos) {
+  constructor(pos, goalRef) {
     // 'this' referes to THIS current object
     this.spawnPos = new Vector(pos.x, pos.y); //remember where the player starts
     this.pos = new Vector(pos.x, pos.y); // curr pos changes when player moves
     this.thing = Util.createThing("player");
     this.currentState = this.getRandomState();//pick a random color state when player starts
+    this.goal = goalRef;
 
     this.movementStates = [ "up", "right", "down", "left" ];
     this.currentDirectionIndex = 0;
@@ -39,7 +40,8 @@ export class Player {
   }
 
     pickUpColor(color) {
-      console.log(`player picked up color: ${color.name}`)
+      console.log(`player picked up color: ${color.name}`);
+      this.goal.changeColor(color);
     }
 
   //get random state from the three states

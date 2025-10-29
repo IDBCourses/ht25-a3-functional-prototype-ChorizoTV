@@ -195,8 +195,9 @@ function setup() {
   enemyData.forEach(data => {
     createEnemyAtPos(data);
   });
-  player = new Player(new Vector(0.7, 0.9));
-  goal = new Goal(new Vector(0.3, 0.15));
+    goal = new Goal(new Vector(0.3, 0.15));
+
+  player = new Player(new Vector(0.7, 0.9), goal);
   addEventListener("keydown", onKeyDown);
   addEventListener("keyup",onKeyUp); 
 

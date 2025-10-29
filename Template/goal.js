@@ -7,12 +7,32 @@ export class Goal {
   constructor(pos) {
     this.pos = new Vector(pos.x, pos.y);
     this.thing = Util.createThing("goal");
+    this.currentColor = null;
     this.init()
   }
+  changeColor(newColor) {
+    this.currentColor = newColor;
+    this.updateVisualColor();
+    console.log(`goal changed color to: ${newColor.name}`);
 
+  }
+
+  updateVisualColor(){
+    if(this.currentColor) {
+      Util.setColour(
+        this.currentColor.h,
+        this.currentColor.s,
+        this.currentColor.l,
+        this.currentColor.a,
+        this.thing
+      );
+    } else {
+      Util.setColour(0, 0, 90, 1, this.thing)
+    }
+  }
   init() {
     const pixPos = this.convertPosToPixel();
-    Util.setColour(0, 0, 90, 1, this.thing);
+    this.updateVisualColor();
     Util.setSize(this.SIZE, this.SIZE, this.thing);
     Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);
     Util.setRoundedness(0, this.thing);
