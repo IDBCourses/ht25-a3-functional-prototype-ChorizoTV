@@ -15,6 +15,11 @@ let lastTime = 0;
 let deltaTime = 0;
 let goal; 
 let colorPlates = [];
+let player; 
+let enemies = [];
+let lastKeyATime = 0;
+const DOUBLE_TAP_DELAY = 300;
+
 
 let colorPlateData = [
   {pos: new Vector(0.3, 0.9), color: PLATE_COLORS.RED},
@@ -27,15 +32,11 @@ function createColorPlates(){
     colorPlates.push(new ColorPlate(plateData.pos, plateData.color));
   });
 }
-let enemies = [];
 const enemyData = [
   {pos: new Vector(0.3, 0.6), type: "horizontal", speed:0.4},
   {pos: new Vector(0.5, 0.6), type: "vertical", speed:0.4},
   {pos:new Vector(0.7, 0.3), type: "horizontal", speed:0.4}
 ];
-
-let player; 
-
 
 function createEnemyAtPos(data) {
   enemies.push(new Enemy(data.pos, data.type, data.speed));
@@ -46,11 +47,20 @@ function createEnemyAtPos(data) {
  * @param {KeyboardEvent} event 
  */
 function onKeyDown(event){
-if (event.code === "KeyK") {
-  player.isStopped = true;
-}
-if (event.code === "KeyM") {
-  player.cycleDirection();
+if (event.code === "KeyK") player.isStopped = true;
+if (event.code === "KeyM") player.cycleDirection();
+
+if (event.code === "KeyA") {
+  const currentTime = Date.now();
+  const timeSinceLastTap = currentTime - lastKeyATime;
+    if (timeSinceLastTap < DOUBLE_TAP_DELAY) {
+      colorPlates.forEach(plate => {
+        if(checkColorPlateCollision(plate)) {
+          player.pickUpColor(plate.colorType);
+        }
+      });
+    }
+    lastKeyATime = currentTime;
 }
 }
 
@@ -58,6 +68,27 @@ function onKeyUp(event){
 if( event.code === "KeyK") {
   player.isStopped = false;
 }
+}
+
+function checkColorPlateCollision(plate){
+    let platePixPos = plate.convertPosToPix();
+
+  let AXmin = platePixPos.x - plate.SIZE * 0.5;
+  let AXmax = platePixPos.x + plate.SIZE * 0.5;
+  let AYmin = platePixPos.y - plate.SIZE * 0.5;
+  let AYmax = platePixPos.y + plate.SIZE * 0.5;
+
+  let playerPixPos = player.convertPosToPixel(); 
+  let BXmin = playerPixPos.x - player.SIZE * 0.5;
+  let BXmax = playerPixPos.x + player.SIZE * 0.5;
+  let BYmin = playerPixPos.y - player.SIZE * 0.5;
+  let BYmax = playerPixPos.y + player.SIZE * 0.5;
+
+  if(AXmin <= BXmax && AXmax >= BXmin && AYmin <= BYmax && AYmax >= BYmin){
+    return true;
+  } else {
+    return false;
+  }
 }
 
 function checkGoalCollision(goal){
@@ -137,10 +168,14 @@ function loop() {
     console.log("nice congrats!");
   }
   
+  colorPlates.forEach((plate, index) => {
+    if(checkColorPlateCollision(plate)) {
+      console.log(`player is touching color plate ${index}, ${plate.colorType.name}`);
+    }
+  });
 
   window.requestAnimationFrame(loop);
 }
-
 
 //calculating delta time. Imagine somebody is running on the sprint 100m sprint and you have a 
   // precise watch. so as soon as they touch 1m mark you write down the right time on your watch 

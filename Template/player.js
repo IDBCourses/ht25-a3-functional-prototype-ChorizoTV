@@ -1,6 +1,8 @@
 import * as Util from "./util.js";
 import { Vector } from "./vector.js";
 import { setBoundaries } from "./boundaries.js";
+import { Goal } from "./goal.js";
+import { ColorPlate } from "./colorplates.js";
 
 const SPEED = 250;
 export const PLAYER_STATE = {
@@ -36,6 +38,9 @@ export class Player {
 
   }
 
+    pickUpColor(color) {
+      console.log(`player picked up color: ${color.name}`)
+    }
 
   //get random state from the three states
   getRandomState() {
