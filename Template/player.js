@@ -5,6 +5,8 @@ import { Goal } from "./goal.js";
 import { ColorPlate } from "./colorplates.js";
 
 const SPEED = 250;
+
+
 export const PLAYER_STATE = {
   PURPLE: "purple",
   GREEN: "green",

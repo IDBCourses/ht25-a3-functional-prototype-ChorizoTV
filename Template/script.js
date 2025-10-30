@@ -21,100 +21,35 @@ let lastKeyATime = 0;
 let isGameWon = false;
 let victoryAnimationProgress = 0;
 let originalPos = {};
-const VICTORY_ANIMATION_SPEED = 0.2;
+const VICTORY_ANIMATION_SPEED = 0.3;
 const DOUBLE_TAP_DELAY = 300;
-const ENEMY_DATA = [
+
+
+const ENEMY_SPAWNING_DATA = [
   { pos: new Vector(0.3, 0.6), type: "horizontal", speed: 0.4 },
   { pos: new Vector(0.5, 0.6), type: "vertical", speed: 0.4 },
   { pos: new Vector(0.7, 0.3), type: "horizontal", speed: 0.4 }
 ];
 
-const COLOR_PLATE_DATA = [
+const COLOR_PLATE_SPAWNING_DATA = [
   { pos: new Vector(0.3, 0.9), color: PLATE_COLORS.RED },
   { pos: new Vector(0.7, 0.45), color: PLATE_COLORS.BLUE },
   { pos: new Vector(0.6, 0.15), color: PLATE_COLORS.YELLOW }
 ];
 
 
-function startVictory() {
-  isGameWon = true;
-  victoryAnimationProgress = 0;
-
-  originalPos.player = new Vector(player.pos.x, player.pos.y);
-  originalPos.goal = new Vector(goal.pos.x, goal.pos.y);
-  originalPos.plates = colorPlates.map(plate => new Vector(plate.pos.x, plate.pos.y));
-  originalPos.enemies = enemies.map(enemy => new Vector(enemy.pos.x, enemy.pos.y));
-
-
-  console.log("VICTORY!");
-}
-
-function getVictoryPos() {
-
-  return {
-    player: new Vector(0.3, 0.2),
-    goal: new Vector(0.7, 0.2),
-    plate1: new Vector(0.7, 0.5),
-    plate2: new Vector(0.3, 0.5),
-    plate3: new Vector(0.5, 0.5),
-    enemy1: new Vector(0.4, 0.7),
-    enemy2: new Vector(0.5, 0.75),
-    enemy3: new Vector(0.6, 0.7)
-  };
-}
-
-function updateVictoryAnimation(deltaTime) {
-  if (!isGameWon) return;
-
-  victoryAnimationProgress += deltaTime * VICTORY_ANIMATION_SPEED;
-  victoryAnimationProgress = Math.min(victoryAnimationProgress, 1);
-
-  const victoryPositions = getVictoryPos();
-  const t = victoryAnimationProgress;
-
-  player.pos.x = lerp(originalPos.player.x, victoryPositions.player.x, t);
-  player.pos.y = lerp(originalPos.player.y, victoryPositions.player.y, t);
-  player.updateHeadPos();
-  player.updateBodyPos();
-
-  goal.pos.x = lerp(originalPos.goal.x, victoryPositions.goal.x, t);
-  goal.pos.y = lerp(originalPos.goal.y, victoryPositions.goal.y, t);
-  goal.update();
-
-  colorPlates.forEach((plate, index) => {
-    const plateKey = `plate${ index + 1 }`;
-    if (victoryPositions[ plateKey ]) {
-      plate.pos.x = lerp(originalPos.plates[index].x, victoryPositions[ plateKey ].x, t);
-      plate.pos.y = lerp(originalPos.plates[index].y, victoryPositions[ plateKey ].y, t);
-      plate.update();
-    }
-  });
-
-  enemies.forEach((enemy, index) => {
-    const enemyKey = `enemy${ index + 1 }`;
-    if (victoryPositions[ enemyKey ]) {
-      enemy.pos.x = lerp(originalPos.enemies[index].x, victoryPositions[ enemyKey ].x, t);
-      enemy.pos.y = lerp(originalPos.enemies[index].y, victoryPositions[ enemyKey ].y, t);
-      enemy.update();
-    }
-  });
-}
-
-function lerp(start, end, t) {
-  return start + (end - start) * t;
-
-}
+//----- CREATE FUNCTIONS 
 function createColorPlates() {
-  COLOR_PLATE_DATA.forEach((plateData) => {
+  COLOR_PLATE_SPAWNING_DATA.forEach((plateData) => {
     colorPlates.push(new ColorPlate(plateData.pos, plateData.color));
   });
 }
-
 
 function createEnemyAtPos(data) {
   enemies.push(new Enemy(data.pos, data.type, data.speed));
 }
 
+//-------- KEYBOARD FUNCTIONS
 /**
  * 
  * @param {KeyboardEvent} event 
@@ -142,6 +77,9 @@ function onKeyUp(event) {
     player.isStopped = false;
   }
 }
+
+//------- COLLISION CHECKERS 
+
 
 function checkColorPlateCollision(plate) {
   let platePixPos = plate.convertPosToPix();
@@ -215,64 +153,96 @@ function checkEnemyCollision(enemy) {
   }
 
 }
-function loop() {
-  calculateDeltaTime();
 
 
-  if(!isGameWon) {
+//------- VICTORY FUNCTIONS 
 
-  enemies.forEach(enemy => {
-    enemy.updateMovement(deltaTime);
-  });
 
-  const previousPos = new Vector(player.pos.x, player.pos.y);
-  player.update(deltaTime);
+//begins victory and saves the current position (from this original position
+//it lerps into a smiley face)
+function startVictory() {
+  isGameWon = true;
+  victoryAnimationProgress = 0;
 
-  // check if enemy collides with player
-  enemies.forEach(enemy => {
-    if (checkEnemyCollision(enemy)) {
-      // we have a collision here !
-      console.log("We have a collision! Resetting player position");
-      player.resetPosition();
+  originalPos.player = new Vector(player.pos.x, player.pos.y);
+  originalPos.goal = new Vector(goal.pos.x, goal.pos.y);
+  originalPos.plates = colorPlates.map(plate => new Vector(plate.pos.x, plate.pos.y));
+  originalPos.enemies = enemies.map(enemy => new Vector(enemy.pos.x, enemy.pos.y));
 
-      player.currentDirectionIndex = 0; //0 = up in movementStates
-      player.updateHeadPos(); //update the head indicator 
-      let playerState = player.getRandomState();
-      player.setState(playerState);
 
-      goal.currentColor = null;
-      goal.colorSequence = [];
-      goal.updateVisualColor();
-      console.log("goal reset to default!");
+  console.log("VICTORY!");
+}
+
+//this is the placements of all the objects into a smiley position.
+function getVictoryPos() {
+  return {
+    player: new Vector(0.4, 0.2),
+    goal: new Vector(0.6, 0.2),
+    plate1: new Vector(0.7, 0.5),
+    plate2: new Vector(0.3, 0.5),
+    plate3: new Vector(0.5, 0.5),
+    enemy1: new Vector(0.4, 0.7),
+    enemy2: new Vector(0.5, 0.75),
+    enemy3: new Vector(0.6, 0.7)
+  };
+}
+
+//updates the victory animation each frame
+function updateVictoryAnimation(deltaTime) {
+  if (!isGameWon) return;
+
+  //update the progress of the animation 
+  victoryAnimationProgress += deltaTime * VICTORY_ANIMATION_SPEED;
+  victoryAnimationProgress = Math.min(victoryAnimationProgress, 1); // we only want to run this once 
+   //if VAP < 1 (it chooses VAP)
+
+  //positions for the smiley face 
+  const victoryPositions = getVictoryPos();
+  const t = victoryAnimationProgress;
+
+  //lerping the current positions in the game to smiley positions 
+  player.pos.x = lerp(originalPos.player.x, victoryPositions.player.x, t);
+  player.pos.y = lerp(originalPos.player.y, victoryPositions.player.y, t);
+  player.updateHeadPos();
+  player.updateBodyPos();
+
+  goal.pos.x = lerp(originalPos.goal.x, victoryPositions.goal.x, t);
+  goal.pos.y = lerp(originalPos.goal.y, victoryPositions.goal.y, t);
+  goal.update();
+
+
+  // loop over every color plate...
+  colorPlates.forEach((plate, index) => {
+    // ... and get the plate key
+    const plateKey = `plate${ index + 1 }`;
+
+    // if we have an element in the array...
+    if (victoryPositions[ plateKey ]) {
+      // ... lerp the plate to the smiling position
+      plate.pos.x = lerp(originalPos.plates[ index ].x, victoryPositions[ plateKey ].x, t);
+      plate.pos.y = lerp(originalPos.plates[ index ].y, victoryPositions[ plateKey ].y, t);
+      plate.update();
     }
   });
 
-if (checkGoalCollision(goal)) {
-    if (goal.currentColor && goal.currentColor.h === player.getCurrentColor().h) {
-      console.log("Colors match! you win");
-      if (!isGameWon) {
-        startVictory();
-      }
-    } else {
-      console.log("colors don't match! try again");
-      player.pos.x = previousPos.x;
-      player.pos.y = previousPos.y;
+  // loop over every enemy...
+  enemies.forEach((enemy, index) => {
+    // ... and get the enemy key
+    const enemyKey = `enemy${ index + 1 }`;
+
+    // if we have an element in the array...
+    if (victoryPositions[ enemyKey ]) {
+      // ... lerp the plate to the smiling position
+      enemy.pos.x = lerp(originalPos.enemies[ index ].x, victoryPositions[ enemyKey ].x, t);
+      enemy.pos.y = lerp(originalPos.enemies[ index ].y, victoryPositions[ enemyKey ].y, t);
+      enemy.update();
     }
-  }
-colorPlates.forEach((plate, index) => {
-  if (checkColorPlateCollision(plate)) {
-    console.log(`player is touching color plate ${ index }, ${ plate.colorType.name }`);
-  }
-});
-
-
-  }
-  updateVictoryAnimation(deltaTime);
-  window.requestAnimationFrame(loop);
-
+  });
 }
 
 
+
+//--------- HELPER FUNCTIONS 
 
 //calculating delta time. Imagine somebody is running on the sprint 100m sprint and you have a 
 // precise watch. so as soon as they touch 1m mark you write down the right time on your watch 
@@ -286,12 +256,79 @@ function calculateDeltaTime() {
   lastTime = currentTime;
 }
 
+function lerp(start, end, t) {
+  return start + (end - start) * t;
+
+}
+
+//-------------- CORE 
+
+function loop() {
+  calculateDeltaTime();
+
+
+  if (!isGameWon) {
+
+    enemies.forEach(enemy => {
+      enemy.updateMovement(deltaTime);
+    });
+
+    const previousPos = new Vector(player.pos.x, player.pos.y);
+    player.update(deltaTime);
+
+    // check if enemy collides with player
+    enemies.forEach(enemy => {
+      if (checkEnemyCollision(enemy)) {
+        // we have a collision here !
+        console.log("We have a collision! Resetting player position");
+        player.resetPosition();
+
+        player.currentDirectionIndex = 0; //0 = up in movementStates
+        player.updateHeadPos(); //update the head indicator 
+        let playerState = player.getRandomState();
+        player.setState(playerState);
+
+        goal.currentColor = null;
+        goal.colorSequence = [];
+        goal.updateVisualColor();
+        console.log("goal reset to default!");
+      }
+    });
+
+    if (checkGoalCollision(goal)) {
+      if (goal.currentColor && goal.currentColor.h === player.getCurrentColor().h) {
+        console.log("Colors match! you win");
+        if (!isGameWon) {
+          startVictory();
+        }
+      } else {
+        console.log("colors don't match! try again");
+        player.pos.x = previousPos.x;
+        player.pos.y = previousPos.y;
+      }
+    }
+    colorPlates.forEach((plate, index) => {
+      if (checkColorPlateCollision(plate)) {
+        console.log(`player is touching color plate ${ index }, ${ plate.colorType.name }`);
+      }
+    });
+
+
+  }
+  updateVictoryAnimation(deltaTime);
+  window.requestAnimationFrame(loop);
+
+}
+
+
 function setup() {
 
   createColorPlates();
-  ENEMY_DATA.forEach(data => {
+
+  ENEMY_SPAWNING_DATA.forEach(data => {
     createEnemyAtPos(data);
   });
+
   goal = new Goal(new Vector(0.3, 0.15));
 
   player = new Player(new Vector(0.7, 0.9), goal);
