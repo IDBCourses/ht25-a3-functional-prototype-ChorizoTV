@@ -75,6 +75,12 @@ export class Player {
 
     this.updateHeadPos();
   }
+
+  updateBodyPos(){
+    const pixPos = this.convertPosToPixel();
+    Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);
+  }
+
   updateHeadPos() {
     const pixPos = this.convertPosToPixel();
     const direction = this.movementStates[ this.currentDirectionIndex ];

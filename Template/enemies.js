@@ -25,7 +25,14 @@ export class Enemy {
     Util.setSize(this.SIZE, this.SIZE, this.thing);
     Util.setRoundedness(0, this.thing);
   }
-  update(deltaTime) {
+
+  update(){
+    const pixPos = this.convertPosToPixel();
+    Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);
+  }
+
+
+  updateMovement(deltaTime) {
   
     if(this.movementType === "horizontal") {
       //horizontal movement
@@ -50,15 +57,11 @@ export class Enemy {
       }
     }
 
-
-
     setBoundaries(this); 
-
-    const pixPos = this.convertPosToPixel();
-    Util.setRotation(0, this.thing);
-    Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);
-
+    this.update();
   }
+
+  
 
   // always get the pixel coordinates even if window size changes AND offset to center 
   convertPosToPixel() {

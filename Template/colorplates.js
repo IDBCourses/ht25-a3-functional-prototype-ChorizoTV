@@ -57,4 +57,9 @@ export class ColorPlate {
     let py = this.pos.y * window.innerHeight - this.halfSize;
     return new Vector(px, py);
     }
+  update(){
+    const pixPos = this.convertPosToPix()
+    Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);
+  }
+    
 }

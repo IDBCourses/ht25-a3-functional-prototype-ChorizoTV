@@ -1,5 +1,11 @@
 import * as Util from "./util.js";
 import { Vector } from "./vector.js";
+import { PLAYER_COLORS, PLAYER_STATE } from "./player.js";
+import { PLATE_COLORS } from "./colorplates.js";
+
+
+const goalDefaultColor = {h:0, s:0, l:90, a:1}; 
+
 
 export class Goal {
   SIZE = 100;
@@ -8,16 +14,44 @@ export class Goal {
     this.pos = new Vector(pos.x, pos.y);
     this.thing = Util.createThing("goal");
     this.currentColor = null;
-    this.init()
+    this.colorSequence = [];
+    this.init();
+
   }
   changeColor(newColor) {
-    this.currentColor = newColor;
+    this.colorSequence.push(newColor);
+
+    if (this.colorSequence.length === 1){
+          this.currentColor = newColor;
+    } else {
+      this.currentColor =this.mixColors();
+    }
+
     this.updateVisualColor();
     console.log(`goal changed color to: ${newColor.name}`);
+    console.log(`Color sequence; ${this.colorSequence.map(c => c.name)}`);
+  }
+
+  mixColors(){
+    const colorNames = this.colorSequence.map(color => color.name);
+
+    if(colorNames.includes("red") && colorNames.includes("yellow")) {
+      return PLAYER_COLORS[PLAYER_STATE.ORANGE];
+    }
+    if(colorNames.includes("red") && colorNames.includes("blue")) {
+      return PLAYER_COLORS[PLAYER_STATE.PURPLE];
+    }
+    if(colorNames.includes("yellow") && colorNames.includes("blue")) {
+      return PLAYER_COLORS[PLAYER_STATE.GREEN];}
+
+
+     return this.colorSequence[this.colorSequence.length - 1];
 
   }
 
+
   updateVisualColor(){
+
     if(this.currentColor) {
       Util.setColour(
         this.currentColor.h,
@@ -27,7 +61,12 @@ export class Goal {
         this.thing
       );
     } else {
-      Util.setColour(0, 0, 90, 1, this.thing)
+      Util.setColour(
+        goalDefaultColor.h, 
+        goalDefaultColor.s, 
+        goalDefaultColor.l, 
+        goalDefaultColor.a, 
+        this.thing)
     }
   }
   init() {
@@ -43,5 +82,9 @@ export class Goal {
     let py = this.pos.y * window.innerHeight - this.halfSize;
         return new Vector(px, py);
 
+  }
+  update(){
+    const pixPos = this.convertPosToPixel()
+    Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);
   }
 }
