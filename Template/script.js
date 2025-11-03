@@ -64,7 +64,9 @@ function onKeyDown(event) {
     if (timeSinceLastTap < DOUBLE_TAP_DELAY) {
       colorPlates.forEach(plate => {
         if (checkColorPlateCollision(plate)) {
-          player.pickUpColor(plate.colorType);
+        console.log(`player picked up color: ${plate.colorType.name}`);
+        goal.changeColor(plate.colorType);
+          // player.pickUpColor(plate.colorType);
         }
       });
     }
@@ -331,7 +333,7 @@ function setup() {
 
   goal = new Goal(new Vector(0.3, 0.15));
 
-  player = new Player(new Vector(0.7, 0.9), goal);
+  player = new Player(new Vector(0.7, 0.9));
   addEventListener("keydown", onKeyDown);
   addEventListener("keyup", onKeyUp);
 

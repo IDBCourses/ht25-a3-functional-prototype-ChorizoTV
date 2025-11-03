@@ -1,8 +1,6 @@
 import * as Util from "./util.js";
 import { Vector } from "./vector.js";
 import { setBoundaries } from "./boundaries.js";
-import { Goal } from "./goal.js";
-import { ColorPlate } from "./colorplates.js";
 
 const SPEED = 250;
 
@@ -28,7 +26,7 @@ export class Player {
     this.pos = new Vector(pos.x, pos.y); // curr pos changes when player moves
     this.thing = Util.createThing("player");
     this.currentState = this.getRandomState();//pick a random color state when player starts
-    this.goal = goalRef;
+    // this.goal = goalRef;
 
     this.movementStates = [ "up", "right", "down", "left" ];
     this.currentDirectionIndex = 0;
@@ -41,10 +39,10 @@ export class Player {
 
   }
 
-    pickUpColor(color) {
-      console.log(`player picked up color: ${color.name}`);
-      this.goal.changeColor(color);
-    }
+    // pickUpColor(color) {
+    //   console.log(`player picked up color: ${color.name}`);
+    //   this.goal.changeColor(color);
+    // }
 
   //get random state from the three states
   getRandomState() {
