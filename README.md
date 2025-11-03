@@ -1,3 +1,14 @@
+THE GOAL
+
+The player is supposed to get to the goal (square, top left corner) without touching the moving obsticles. However if the goal and the player are not in the same color, the player won't be able to enter the goal and win the game.  
+
+GAME CONTROLS:
+
+- Hold K to stop the player from moving.
+- Click M to change the direction of the movement, each click changes the direction. 
+- Double click A to pick up a color. 
+
+
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/2Ckaj58x)
 # CodePlayground
 

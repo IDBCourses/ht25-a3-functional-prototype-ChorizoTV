@@ -1,6 +1,6 @@
 import * as Util from "./util.js";
 import { Vector } from "./vector.js";
-import { PLAYER_COLORS, PLAYER_STATE } from "./player.js";
+import { PLAYER_COLORS} from "./player.js";
 import { PLATE_COLORS } from "./colorplates.js";
 
 //writing all values out incase of wanting to change the color 
@@ -49,9 +49,9 @@ export class Goal {
     const hasYellow = this.colorSequence.includes(PLATE_COLORS.YELLOW);
     const hasBlue = this.colorSequence.includes(PLATE_COLORS.BLUE);
 
-    if (hasRed && hasYellow) return PLAYER_COLORS[ PLAYER_STATE.ORANGE ];
-    if (hasBlue && hasYellow) return PLAYER_COLORS[ PLAYER_STATE.GREEN ];
-    if (hasRed && hasBlue) return PLAYER_COLORS[ PLAYER_STATE.PURPLE ];
+    if (hasRed && hasYellow) return PLAYER_COLORS.ORANGE;
+    if (hasBlue && hasYellow) return PLAYER_COLORS.GREEN;
+    if (hasRed && hasBlue) return PLAYER_COLORS.PURPLE;
 
     //keeps the most recent color as base so we can still mix 
     //gives index of the last element, regardless of how many items in the array

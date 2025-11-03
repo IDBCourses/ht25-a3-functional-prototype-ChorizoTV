@@ -57,7 +57,6 @@ function createEnemyAtPos(data) {
 function onKeyDown(event) {
   if (event.code === "KeyK") player.isStopped = true;
   if (event.code === "KeyM") player.cycleDirection();
-
   if (event.code === "KeyA") {
     const currentTime = Date.now();
     const timeSinceLastTap = currentTime - lastKeyATime;
@@ -66,7 +65,6 @@ function onKeyDown(event) {
         if (checkColorPlateCollision(plate)) {
         console.log(`player picked up color: ${plate.colorType.name}`);
         goal.changeColor(plate.colorType);
-          // player.pickUpColor(plate.colorType);
         }
       });
     }

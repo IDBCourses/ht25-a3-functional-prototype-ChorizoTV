@@ -5,58 +5,60 @@ import { setBoundaries } from "./boundaries.js";
 const SPEED = 250;
 
 
-export const PLAYER_STATE = {
-  PURPLE: "purple",
-  GREEN: "green",
-  ORANGE: "orange"
-};
-
+//define all player color states with their visual properties
 export const PLAYER_COLORS = {
-  [ PLAYER_STATE.PURPLE ]: { h: 266, s: 100, l: 50, a: 1 },
-  [ PLAYER_STATE.GREEN ]: { h: 135, s: 76, l: 60, a: 1 },
-  [ PLAYER_STATE.ORANGE ]: { h: 24, s: 90, l: 60, a: 1 }
+  PURPLE: {
+    name: "purple",
+    h: 266, s: 100, l: 50, a: 1
+  },
+  GREEN: {
+    name: "green",
+     h: 135, s: 76, l: 60, a: 1
+  },
+  ORANGE: {
+    name: "orange",
+     h: 24, s: 90, l: 60, a: 1
+  }
 }
 export class Player {
   SIZE = 100;
   halfSize = this.SIZE * 0.5;
+  headIndicatorSize = 50; 
+  headIndicatorHalfSize = this.headIndicatorSize * 0.5;
 
-  constructor(pos, goalRef) {
+  constructor(pos) {
     // 'this' referes to THIS current object
     this.spawnPos = new Vector(pos.x, pos.y); //remember where the player starts
     this.pos = new Vector(pos.x, pos.y); // curr pos changes when player moves
     this.thing = Util.createThing("player");
     this.currentState = this.getRandomState();//pick a random color state when player starts
-    // this.goal = goalRef;
-
     this.movementStates = [ "up", "right", "down", "left" ];
     this.currentDirectionIndex = 0;
     this.isStopped = false;
 
     this.headIndicator = Util.createThing("headIndicator")
     this.init();
-
-    this.isKeyKDown = false;
-
   }
-
-    // pickUpColor(color) {
-    //   console.log(`player picked up color: ${color.name}`);
-    //   this.goal.changeColor(color);
-    // }
 
   //get random state from the three states
   getRandomState() {
-    //put all possible states in a list
-    const states = [ PLAYER_STATE.PURPLE, PLAYER_STATE.GREEN, PLAYER_STATE.ORANGE ];
-    //pick random number: 0, 1, 2
+    //array of all possible color states
+    const states = [ PLAYER_COLORS.PURPLE, PLAYER_COLORS.GREEN, PLAYER_COLORS.ORANGE ];
+    //pick random number: 0-2
     const randomIndex = Math.floor(Math.random() * states.length);
     //returns the chosen state
     return states[ randomIndex ];
   }
 
-
   getCurrentColor() {
-    return PLAYER_COLORS[ this.currentState ];
+    return this.currentState;
+  }
+
+  //updates color state and visual color of the player
+  //used when player needs to change colors (after collision reset)
+  setState(newState) {
+    this.currentState = newState;
+    Util.setColour(newState.h, newState.s, newState.l, newState.a, this.thing);
   }
 
   init() {
@@ -68,19 +70,25 @@ export class Player {
     Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);
     Util.setSize(this.SIZE, this.SIZE, this.thing);
     Util.setRoundedness(0, this.thing);
+
     //head indicator
     Util.setColour(59, 100, 50, 1, this.headIndicator);
-    Util.setSize(50, 50, this.headIndicator);
+    Util.setSize(this.headIndicatorSize, this.headIndicatorSize, this.headIndicator);
     Util.setRoundedness(1, this.headIndicator);
-
+    
+    //position the head indicator based on initual direction
     this.updateHeadPos();
   }
 
+
+  // updates the main player body position outside the movement system (used for victory animation)
   updateBodyPos(){
     const pixPos = this.convertPosToPixel();
     Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);
   }
-
+  
+  //updates head indicator position relative to player based current 
+  //direction
   updateHeadPos() {
     const pixPos = this.convertPosToPixel();
     const direction = this.movementStates[ this.currentDirectionIndex ];
@@ -90,74 +98,58 @@ export class Player {
 
     switch (direction) {
       case "up":
-        headX += this.SIZE / 2 - 25;
-        headY -= 20;
+        headX += this.halfSize - this.headIndicatorHalfSize;
+        headY -= this.headIndicatorHalfSize;
         break;
       case "right":
-        headX += this.SIZE - 20;
-        headY += this.SIZE / 2 - 25;
+        headX += this.SIZE - this.headIndicatorHalfSize;
+        headY += this.halfSize  - this.headIndicatorHalfSize;
         break;
       case "down":
-        headX += this.SIZE / 2 - 25;
-        headY += this.SIZE - 20;
+        headX += this.halfSize  - this.headIndicatorHalfSize;
+        headY += this.SIZE - this.headIndicatorHalfSize;
         break;
       case "left":
-        headX -= 20;
-        headY += this.SIZE / 2 - 25;
+        headX -= this.headIndicatorHalfSize;
+        headY += this.halfSize - this.headIndicatorHalfSize;
         break;
     }
-    Util.setPositionPixels(headX, headY, this.headIndicator);
 
+    //apply the calculated position to the head indicator element
+    Util.setPositionPixels(headX, headY, this.headIndicator);
   }
 
+  //cycles through movement directions in sequence (up -> right -> down -> left)
   cycleDirection() {
-    this.currentDirectionIndex = (this.currentDirectionIndex + 1) % 4;
+    this.currentDirectionIndex = (this.currentDirectionIndex + 1) % 4; // % wrap around tool, when a number 
+    // reaches the limit it jumps back to the start
+
+    //updates head indicator pos to reflect new direction
     this.updateHeadPos();
   }
 
-  setState(newState) {
-    this.currentState = newState;
-    const color = this.getCurrentColor();
-    Util.setColour(color.h, color.s, color.l, color.a, this.thing);
-
-  }
+  //resets player position to original spawn point
   resetPosition() {
     this.pos.x = this.spawnPos.x;
     this.pos.y = this.spawnPos.y;
   }
-  setVel() {
-    //resets the velocity to zero so we can calculate it 
-    //from scratch (doesn't infinetly add to itself)
-    //scales the movement to be time-based instead of frame-based
-    this.vel = new Vector(0, 0);
 
-    if (this.isKeyMDown) {
-      let leftVel = new Vector(-1, 0);
-      leftVel.mult(SPEED);
-      this.vel.add(leftVel);
-    }
-    if (this.isKeyKDown) {
-      const upVel = new Vector(0, -1);
-      upVel.mult(SPEED);
-      this.vel.add(upVel)
-    }
-    if (this.isKeyLDown) {
-      const rightVel = new Vector(1, 0);
-      rightVel.mult(SPEED);
-      this.vel.add(rightVel);
-    }
-  }
-
-
+  //main update method called each frame, handles movement and visual updates
   update(deltaTime) {
     if (!this.isStopped) {
       const direction = this.movementStates[ this.currentDirectionIndex ];
+      //calculate movement distance based on speed and time since last frame
+      //converts "pixel per second" to "pixels per frame"
       let moveAmount = SPEED * deltaTime;
 
+      //update oosition based on current direction
+      //movement amount are normalised by screen dimensions for consistent speed
+      //across resolutions 
       switch (direction) {
         case "up":
           this.pos.y -= moveAmount / window.innerHeight;
-          break;
+          break; //on computer screens the origin is 0,0 is the top 
+          // left and Y inscreases as you go down
         case "right":
           this.pos.x += moveAmount / window.innerWidth;
           break;
@@ -170,11 +162,14 @@ export class Player {
       }
     }
 
+    //ensures player stays within screen boundries 
     setBoundaries(this);
 
+    //update visual position of player's body
     const pixPos = this.convertPosToPixel();
-    Util.setRotation(0, this.thing);
+    // Util.setRotation(0, this.thing); (trauma from last project)
     Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);
+    //update head indicator position to match new player position
     this.updateHeadPos()
 
   }
@@ -185,13 +180,7 @@ export class Player {
     let py = this.pos.y * window.innerHeight - this.halfSize;
     return new Vector(px, py);
   }
-  // converts pixel coordinates to normal coordinates, which
-  // range between 0-1 and returns them.
-  convertPixelToNormal(vec) {
-    let nx = vec.x / window.innerWidth;
-    let ny = vec.y / window.innerHeight;
-    return new Vector(nx, ny);
-  }
+  
 }
 
 
