@@ -61,8 +61,6 @@ export class Enemy {
     this.update();
   }
 
-  
-
   // always get the pixel coordinates even if window size changes AND offset to center 
   convertPosToPixel() {
     const halfSize = this.SIZE * 0.5;
