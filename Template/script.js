@@ -11,18 +11,20 @@ import { Goal } from "./goal.js";
 import { ColorPlate, PLATE_COLORS } from "./colorplates.js";
 
 
-let lastTime = Date.now();
+let lastTime = Date.now(); // timestamp for frame-rate independent movement
 let deltaTime = 0;
 let goal;
 let colorPlates = [];
 let player;
 let enemies = [];
-let lastKeyATime = 0;
+let lastKeyATime = 0; //timestamp for double tap detection
 let isGameWon = false;
 let victoryAnimationProgress = 0;
-let originalPos = {};
+let originalPos = {}; //stores positions before victory animation
+
+
 const VICTORY_ANIMATION_SPEED = 0.3;
-const DOUBLE_TAP_DELAY = 300;
+const DOUBLE_TAP_DELAY = 300; //maximum time bwteen taps (milisecondslk)
 
 
 const ENEMY_SPAWNING_DATA = [
@@ -57,6 +59,8 @@ function createEnemyAtPos(data) {
 function onKeyDown(event) {
   if (event.code === "KeyK") player.isStopped = true;
   if (event.code === "KeyM") player.cycleDirection();
+
+  //double-tap detection for color pick up
   if (event.code === "KeyA") {
     const currentTime = Date.now();
     const timeSinceLastTap = currentTime - lastKeyATime;
@@ -64,11 +68,11 @@ function onKeyDown(event) {
       colorPlates.forEach(plate => {
         if (checkColorPlateCollision(plate)) {
         console.log(`player picked up color: ${plate.colorType.name}`);
-        goal.changeColor(plate.colorType);
+        goal.changeColor(plate.colorType); // apply color to goal
         }
       });
     }
-    lastKeyATime = currentTime;
+    lastKeyATime = currentTime; //update next tap detection 
   }
 }
 
