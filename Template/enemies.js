@@ -7,6 +7,7 @@ import { setBoundaries, BOUNDARIES } from "./boundaries.js";
 
 export class Enemy {
   SIZE = 100;
+  
   constructor(pos,movementType, speed = 1) {
     // coordinates in 0-1
     this.pos = pos;
@@ -17,7 +18,7 @@ export class Enemy {
     this.directionX = 1; //moving side to side 
     this.directionY = 1; // moving top to bottom
   }
-
+  //initializes the enemy's position appearance and position 
   init() {
     const pixPos = this.convertPosToPixel();
     Util.setColour(330, 100, 50, 1, this.thing);
@@ -26,16 +27,17 @@ export class Enemy {
     Util.setRoundedness(0, this.thing);
   }
 
+  //updates the enemy's visual position on screen (used in the victory animation)
   update(){
     const pixPos = this.convertPosToPixel();
     Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);
   }
 
-
+  //handles enemy movement logic 
   updateMovement(deltaTime) {
   
+    //left - right
     if(this.movementType === "horizontal") {
-      //horizontal movement
       /**
        * this.speed = how many units the enemy moves per second
        * deltaTime = how many seconds have passed since last frame
@@ -43,21 +45,22 @@ export class Enemy {
        */
       let moveAmount = this.speed * deltaTime; //calculate distance to move this frame
       this.pos.x += moveAmount * this.directionX;
+
       //if enemy hits the wall it flips direction
       if(this.pos.x <= BOUNDARIES.left || this.pos.x >= BOUNDARIES.right){
         this.directionX *= -1;
       }
+      //up-down
     } else if (this.movementType === "vertical") {
-      //vertical movement
       let moveAmount = this.speed * deltaTime;
-      this.pos.y += moveAmount * this.directionY; //How far should the enemy move in this frame
+      this.pos.y += moveAmount * this.directionY; 
       //flips direction when enemy hits the wall
       if(this.pos.y <= BOUNDARIES.top || this.pos.y >= BOUNDARIES.bottom) {
         this.directionY *= -1;
       }
     }
-
-    setBoundaries(this); 
+    //for resizing the winodw  
+    setBoundaries(this);
     this.update();
   }
 

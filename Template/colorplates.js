@@ -1,6 +1,8 @@
 import * as Util from "./util.js";
 import { Vector } from "./vector.js";
 
+
+//define available color options for color plates
 export const PLATE_COLORS = {
   RED: {
     name: "red",
@@ -29,15 +31,18 @@ export const PLATE_COLORS = {
 export class ColorPlate {
   SIZE = 60;
   halfSize = this.SIZE * 0.5;
+
   constructor(pos, colorType) {
     this.pos = pos;
+    //store reference to the color definition (RED, BLUE, YELLOW)
     this.colorType = colorType;
     this.thing = Util.createThing("colorPlate");
     this.init();
 
   }
-
+  //initializes the color plate's visual appearance and position
   init(){
+  
     const pixPos = this.convertPosToPix();
     Util.setColour(
       this.colorType.h,
@@ -51,12 +56,16 @@ export class ColorPlate {
     Util.setRoundedness(0, this.thing);
 
   }
-
+  //converts normalised coordinates to pixel coordinates 
+  //centers the plate by substracting halfSize from caluclated position 
   convertPosToPix(){
     let px = this.pos.x * window.innerWidth - this.halfSize;
     let py = this.pos.y * window.innerHeight - this.halfSize;
     return new Vector(px, py);
     }
+
+  //updates the color plate's visual position on screen
+  //used during smiley 
   update(){
     const pixPos = this.convertPosToPix()
     Util.setPositionPixels(pixPos.x, pixPos.y, this.thing);

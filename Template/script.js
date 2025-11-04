@@ -276,6 +276,9 @@ function loop() {
     const previousPos = new Vector(player.pos.x, player.pos.y);
     player.update(deltaTime);
 
+    goal.update();
+    colorPlates.forEach(plate => plate.update());
+    
     // check if enemy collides with player
     enemies.forEach(enemy => {
       if (checkEnemyCollision(enemy)) {
