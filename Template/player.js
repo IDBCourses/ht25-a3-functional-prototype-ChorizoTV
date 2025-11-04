@@ -124,6 +124,10 @@ export class Player {
     this.currentDirectionIndex = (this.currentDirectionIndex + 1) % 4; // % wrap around tool, when a number 
     // reaches the limit it jumps back to the start
 
+    const directions = ["up", "right", "down", "left"];
+    console.log(`Player is facing: ${directions[this.currentDirectionIndex]}`);
+
+    
     //updates head indicator pos to reflect new direction
     this.updateHeadPos();
   }

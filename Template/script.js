@@ -11,7 +11,7 @@ import { Goal } from "./goal.js";
 import { ColorPlate, PLATE_COLORS } from "./colorplates.js";
 
 
-let lastTime = 0;
+let lastTime = Date.now();
 let deltaTime = 0;
 let goal;
 let colorPlates = [];
@@ -266,7 +266,6 @@ function lerp(start, end, t) {
 function loop() {
   calculateDeltaTime();
 
-
   if (!isGameWon) {
 
     enemies.forEach(enemy => {
@@ -278,7 +277,7 @@ function loop() {
 
     goal.update();
     colorPlates.forEach(plate => plate.update());
-    
+
     // check if enemy collides with player
     enemies.forEach(enemy => {
       if (checkEnemyCollision(enemy)) {
@@ -312,7 +311,7 @@ function loop() {
     }
     colorPlates.forEach((plate, index) => {
       if (checkColorPlateCollision(plate)) {
-        console.log(`player is touching color plate ${ index }, ${ plate.colorType.name }`);
+        console.log(`player is touching color plate ${ index }, ${ plate.colorType.name } double tap A to pick it up!`);
       }
     });
 
@@ -338,7 +337,6 @@ function setup() {
   addEventListener("keydown", onKeyDown);
   addEventListener("keyup", onKeyUp);
 
-  lastTime = Date.now();
   window.requestAnimationFrame(loop);
 }
 
